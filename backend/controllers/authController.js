@@ -78,6 +78,7 @@ export async function verifyOtp(req,res){
        message: "Invalid or expired OTP"
     });
    }  
+
    Object.assign(user, {isVerified: true, otp: null, otpExpiry: null});
    await user.save();
    res.status(200).json({message: "OTP verified sucessfully"});
@@ -88,6 +89,34 @@ export async function verifyOtp(req,res){
        console.error("Error verifying OTP:", error) ;
        res.status(500).json({
         message: "Error verifying OTP", error: error.message
+       });
+    }
+}
+
+
+// step 3:  complete profile
+export async function completeProfile(req, res){
+    try {
+    const {email, department, stream, semester,year, rollNo} = req.body;
+    if(!email)   return res.status(400).json({message: "Email is required"});
+
+    const user = await User.findOne({email});
+      if(!user) return res.status(400).json({message: "User not found"})
+      if(!user.isVerified) return res.status(400).json({
+        message: "User not verified"
+      });
+
+      Object.assign(user,{department, stream, semester, year, rollNo, isProfileComplete:true});
+      await user.save();
+      res.status(200).json({
+        message: "Profile completed sucessfully"
+      });
+    } 
+    
+     catch (error) {
+       console.error("Error completing profile:", error) ;
+       res.status(500).json({
+        message: "Error completing profile", error: error.message
        });
     }
 }
