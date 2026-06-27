@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import sendOtp from "../utils/sendOTP.js";
 import bcrypt from 'bcryptjs';
 import{v4 as uuidv4} from 'uuid';
+import jwt from 'jsonwebtoken';
 
 
 
@@ -118,6 +119,71 @@ export async function completeProfile(req, res){
        res.status(500).json({
         message: "Error completing profile", error: error.message
        });
+    }
+}
+
+// Login as a  student or adimin
+export async function loginUser(req,res){
+    try {
+       const {email, password} = req.body;
+       if(!email || !password) {
+        return res.status(400).json({
+            sucess:false,
+            message: "Email and Pasword are required"
+        });
+       }
+       const user = await User.findOne({email});
+       if (!user) return res.status(404).json({sucess: false, message: "User not found"})
+       
+        if(!user.isVerified){
+            return res.status(403).json({
+                sucess: false,
+                message: "Please verify your email with OTP before loggin in."
+            });
+        }
+
+        if(!(await bcrypt.compare(password, user.password))) {
+            return res.status(400).json({
+                sucess: false,
+                message: "Invalid credentials"
+            })
+        }
+
+        const token = jwt.sign({id: user._id, role: user.role}, process.env.JWT_SECRET, {expiresIn:"7d"})
+        const {password: _, ...userResponse} = user.toObject();
+
+        res.status(200).json({
+            sucess: true,
+            token,
+            user: userResponse
+        });
+    } 
+    
+    catch (error) {
+        console.error("Error dring login:", error);
+        res.status(500).json({
+            sucess: false,
+            message: error.message
+        })
+    }
+}
+
+// get current  user profile
+export async function getProfile(req,res){
+try {
+   const user = await User.findById(req.user.id).select("-password");
+    if(!user) return res.status(404).json({message: "User not found"});
+
+    res.status(200).json({ sucess: true, user})
+
+} 
+
+ catch (error) {
+        console.error("Error fetching user profile:", error);
+        res.status(500).json({
+            
+            message: "Error fetching user profile",error: error.message
+        })
     }
 }
 
