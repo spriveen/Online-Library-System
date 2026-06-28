@@ -39,7 +39,8 @@ res.status(200).json({
         console.error("Error searching students by roll:",  error);
         res.status(500).json({
             sucess: false,
-            message: "Error searchinng students by roll"
+            message: "Error searchinng students by roll",
+            error: error.message
         });
     }
 }
