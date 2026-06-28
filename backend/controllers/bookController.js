@@ -173,3 +173,85 @@ export async  function applyFine(req,res){
         })
     }
 }
+
+
+// 6. Clear manual fine
+
+export async function clearFine(req,res){
+    try {
+       const issue = await Issue.findById(req.param.id);
+      if(!issue) return res.status(404).json({ message: "Issue record not found"});
+      
+      Object.assign(issue,{
+        manualFine: 0,
+        fineCleared: true,
+        clearedFineAmount: calculateFine(issue, issue.fineRate, issue.findInterval)
+      });
+  
+       await issue.save();
+
+       res.status(200).json({
+        success: true,
+        message: "Find cleared successfully!",
+        issue
+       });
+
+    } 
+    
+    catch (error) {
+        console.error("Error clearing manual fine:", error);
+        res.status(500).json({
+            message: "Error clearing manual fine", error: error.message
+        })
+    }
+}
+
+// 7. Get Active fine setting
+export async function getFineSettings(req,res){
+    try {
+       const setting = (await FineSetting.findOne({}) ||
+      (await FineSetting. create({amount:10, interval: "day"}))
+    );
+       res.status(200).json({ success: true, setting});
+    } 
+    
+    catch (error) {
+        console.error("Error fetching fine setting:", error);
+        res.status(500).json({
+            message: "Error fetching fine setting", error: error.message
+        })
+    }
+}
+
+//  8. To updare fine setting 
+
+export async function updateFineSettings(req,res){
+    try {
+      const {amount, interval}  = req.body;
+      let settings = await FineSetting.findOne({});
+
+      if(setting) {
+        if(amount !== undefined) settings.amount = Number(amount);
+        if (interval !== undefined) settings.intervalc= interval;
+        await settings.save();
+      } else{
+        settings= await FineSetting.create({
+            amount: Number(amount) || 10,
+            interval: interval || "day"
+        });
+      }
+      res.status(200).json({
+        success: true,
+        message: "Fine settings update successfully!",
+        settings
+      });
+      
+    } 
+    
+    catch (error) {
+        console.error("Error updating fine setting:", error);
+        res.status(500).json({
+            message: "Error updating fine setting", error: error.message
+        })
+    }
+}
