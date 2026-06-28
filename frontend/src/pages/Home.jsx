@@ -1,5 +1,11 @@
-import React from 'react'
-import Sidebar from '../components/Sidebar'
+import React from "react";
+import Sidebar from "../components/Sidebar";
+
+import {
+  BookMarked,
+  Users,
+  ShieldCheck,
+} from "lucide-react";
 
 const navItems = [
   {
@@ -37,41 +43,16 @@ const features = [
 ];
 
 const Home = () => {
-
-  const footerItems = currentUser
-    ? [
-        {
-          label: "Logout",
-          icon: "login",
-          kind: "primary",
-          action: () => {
-            logout();
-            navigate("/");
-          },
-        },
-      ]
-    : [
-        { label: "Login", href: "/login", icon: "login", kind: "primary" },
-        {
-          label: "Sign Up",
-          href: "/signup",
-          icon: "signup",
-          kind: "secondary",
-        },
-      ];
-
-
   return (
     <div>
-      <Sidebar 
-      title="ShelfWise"
-     subtitle="Library management portal"
-      badge="Beautiful theme"
-      navItems={navItems} 
-      footerItems={footerItems}
+      <Sidebar
+        title="ShelfWise"
+        subtitle="Library management portal"
+        badge="Beautiful theme"
+        navItems={navItems}
       />
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
