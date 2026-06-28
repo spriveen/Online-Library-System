@@ -237,7 +237,7 @@ export async function getUsers(req,res){
     } 
     catch (error) {
         console.error("Error fetching students:", error);
-        res.status(500).json({message: "Error fetching students", error: errror.message})
+        res.status(500).json({message: "Error fetching students", error: error.message})
     }
 }
 
@@ -278,6 +278,6 @@ export async function registerAdmin(req,res){
     
     catch (error) {
         console.error("Error registering admin:", error);
-        res.status(500).json({message: "Error registering admin", error: errror.message})
+        res.status(500).json({message: "Error registering admin", error: error.message})
     }
 }
