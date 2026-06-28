@@ -1,6 +1,6 @@
 import { createTransport } from "nodemailer";
 
-const sendOtp = async (ElementInternals, otp)=>{
+const sendOtp = async (email, otp) => {
     const transporter = createTransport({
         service: "gmail",
         auth: {
@@ -8,12 +8,13 @@ const sendOtp = async (ElementInternals, otp)=>{
             pass: process.env.EMAIL_PASS
         }
     });
+
     await transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: email,
         subject: "Your OTP Code",
-        html: `<h2> Your OTP is ${otp}</h2>`
-    })
-}
+        html: `<h2>Your OTP is ${otp}</h2>`
+    });
+};
 
-export default sendOtp
+export default sendOtp;
