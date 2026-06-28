@@ -117,3 +117,59 @@ export async function getStudentIssues(req,res){
     }
 }
 
+// Return issued manual books
+export async function returnBook(req,res) {
+    try {
+        const issue = await Issue.findById(req.params.id);
+        if (!issue) return res.status(404).json({message: "Issue record not found"});
+
+        if (issue.returnedOn) return res.status(400).json({
+            message: "Book already returned"
+        });
+        issue.returnedOn = getLocalIsoDate();
+        await issue.save();
+        res.status(200).json({
+            success: true,
+            message: "Book returned sucessfully!",
+            issue
+        });
+    } 
+    
+    catch (error) {
+        console.error("Error returning manual book:", error);
+        res.status(500).json({
+            message: "Error returning manual book", error: error.message
+        })
+    }
+}
+
+//  5. Apply manuka fine
+
+export async  function applyFine(req,res){
+    try {
+      const findAmount = Number(req.body.amount);
+      if(Number.isNaN(findAmount)) return res.status(404).json({
+        message: "Invalid fine amount"
+      });
+      const issue = await Issue.findById(req.param.id);
+      if(!issue) return res.status(404).json({ message: "Issue record not found"});
+
+      issue.manualFine = fineAmount;
+      if(findAmount > 0) issue.fineCleared = false;
+      await issue.save();
+
+      res.status(200).json({
+        success: true,
+        message: "Manualfine applied sucessfully!",
+        issue
+      })
+
+    } 
+    
+    catch (error) {
+        console.error("Error applying manual fine:", error);
+        res.status(500).json({
+            message: "Error applying manual fine", error: error.message
+        })
+    }
+}
