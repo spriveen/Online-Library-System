@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { loginStyles as s } from "../assets/dummyStyles";
-import { LockKeyhole, Mail, ShieldCheck, UserRound } from "lucide-react";
+import { Eye, EyeOff, LockKeyhole, Mail, ShieldCheck, UserRound } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../shared/AuthContext.jsx";
 
@@ -200,12 +200,13 @@ const Login = () => {
                 className={s.passwordInput}
                  />
 
-                 
-                 </div>
-
-                
-
-              </label>
+                 <button type="button" onClick={()=> setShowPassword((current)=> !current)}
+                    className={s.togglePasswordButton}
+                    >
+                      {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}  
+                    </button>
+              </div>
+            </label>
             </form>
           </div>
         </section>
