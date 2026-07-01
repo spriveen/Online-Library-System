@@ -1,13 +1,14 @@
 import React from "react";
 import Sidebar from "../components/Sidebar";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../shared/AuthContext.jsx";
-import { homeStyles as s } from "../assets/dummyStyles.jsx"; // ✅ FIXED
+import { homeStyles as s } from "../assets/dummyStyles.jsx";
 
 import {
   BookMarked,
   Users,
   ShieldCheck,
+  ArrowRight,
 } from "lucide-react";
 
 const navItems = [
@@ -49,33 +50,6 @@ const Home = () => {
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
 
-  const footerItems = currentUser
-    ? [
-        {
-          label: "Logout",
-          icon: "login",
-          kind: "primary",
-          action: () => {
-            logout();
-            navigate("/");
-          },
-        },
-      ]
-    : [
-        {
-          label: "Login",
-          href: "/login",
-          icon: "login",
-          kind: "primary",
-        },
-        {
-          label: "Sign Up",
-          href: "/signup",
-          icon: "signup",
-          kind: "secondary",
-        },
-      ];
-
   return (
     <div className={s.layoutContainer}>
       <Sidebar
@@ -83,29 +57,57 @@ const Home = () => {
         subtitle="Library management portal"
         badge="Beautiful theme"
         navItems={navItems}
-        footerItems={footerItems}
       />
 
       <main className={s.mainContent}>
-     <div className={s.innerContainer}>
-       <section className={s.heroSection}>
-         <div className={s.heroGrid}>
-         <div>
-          <span className={s.heroBadge}>
-            Library Managemen Website
-          </span>
-          <h1 className={s.heroTitle}>
-            Manage students, books return, and fines in one library dashboard
-          </h1>
-          <p className={s.heroText}>
-       This library management poratl gives student a focused borrowing dashboard and give admin a practical workspace for
-       manual circulation, user records and overdue tracking
-          </p>
-         </div>
-         </div>
-       </section>
-     </div>
+        <div className={s.innerContainer}>
+          <section className={s.heroSection}>
+            <div className={s.heroGrid}>
+              <div>
+                <span className={s.heroBadge}>
+                  Library Management Website
+                </span>
 
+                <h1 className={s.heroTitle}>
+                  Manage students, book returns, and fines in one library dashboard
+                </h1>
+
+                <p className={s.heroText}>
+                  This library management portal gives students a focused borrowing dashboard
+                  and gives admins a practical workspace for manual circulation, user records,
+                  and overdue tracking.
+                </p>
+
+                <div className={s.heroButtons}>
+                  {currentUser ? (
+                    <Link
+                      to={
+                        currentUser.role === "admin"
+                          ? "/admin/dashboard"
+                          : "/user/dashboard"
+                      }
+                      className={s.heroButtonPrimary}
+                    >
+                      Go to Dashboard <ArrowRight size={16} />
+                    </Link>
+                  ) : (
+                    <>
+                      <Link to="/signup" className={s.heroButtonPrimary}>
+                        Create Account <ArrowRight size={16} />
+                      </Link>
+
+                      <Link to="/login" className={s.heroButtonSecondary}>
+                        Login Now <ArrowRight size={16} />
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              
+            </div>
+          </section>
+        </div>
       </main>
     </div>
   );
