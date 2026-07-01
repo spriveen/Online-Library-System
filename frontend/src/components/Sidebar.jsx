@@ -9,6 +9,8 @@ import {
   ShieldCheck,
   UserRound,
   X,
+  LogIn,
+  UserPlus, // ✅ FIXED (was missing)
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -25,14 +27,14 @@ const Sidebar = ({
   subtitle,
   badge,
   navItems = [],
+  footerItems = [], // ✅ FIXED (added default)
   accent = "user",
   logoSrc,
 }) => {
   const location = useLocation();
   const [open, setOpen] = useState(false);
 
-  const badgeStyles =
-    accent === "admin" ? s.badgeAdmin : s.badgeUser;
+  const badgeStyles = accent === "admin" ? s.badgeAdmin : s.badgeUser;
 
   return (
     <>
@@ -64,11 +66,7 @@ const Sidebar = ({
           <div className="min-w-0 pr-3">
             <div className={s.logoWrapper}>
               {logoSrc ? (
-                <img
-                  src={logoSrc}
-                  alt="logo"
-                  className={s.logoImage}
-                />
+                <img src={logoSrc} alt="logo" className={s.logoImage} />
               ) : (
                 <BookCopy size={22} />
               )}
@@ -78,9 +76,7 @@ const Sidebar = ({
             <p className={s.subtitle}>{subtitle}</p>
 
             {badge && (
-              <span
-                className={`${s.badgeBase} ${badgeStyles}`}
-              >
+              <span className={`${s.badgeBase} ${badgeStyles}`}>
                 {badge}
               </span>
             )}
@@ -98,8 +94,7 @@ const Sidebar = ({
         {/* Navigation */}
         <nav className={s.nav}>
           {navItems.map((item) => {
-            const Icon =
-              iconMap[item.icon] ?? ChevronRight;
+            const Icon = iconMap[item.icon] ?? ChevronRight;
 
             const active =
               location.pathname === item.href ||
@@ -113,9 +108,7 @@ const Sidebar = ({
                 to={item.href}
                 onClick={() => setOpen(false)}
                 className={`${s.navLink} ${
-                  active
-                    ? s.navLinkActive
-                    : s.navLinkInactive
+                  active ? s.navLinkActive : s.navLinkInactive
                 }`}
               >
                 <span
@@ -129,9 +122,7 @@ const Sidebar = ({
                 </span>
 
                 <span className="min-w-0 flex-1">
-                  <span className={s.navLabel}>
-                    {item.label}
-                  </span>
+                  <span className={s.navLabel}>{item.label}</span>
                   <span
                     className={`${s.navDescription} ${
                       active
@@ -156,7 +147,56 @@ const Sidebar = ({
           })}
         </nav>
 
-        <div className={s.footer}></div>
+        {/* Footer */}
+        <div className={s.footer}>
+          {footerItems.map((item) => {
+            const Icon =
+              item.icon === "signup" ? UserPlus : LogIn;
+
+            if (item.action) {
+              return (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={item.action}
+                  className={`${s.footerButton} ${
+                    item.kind === "primary"
+                      ? s.footerButtonPrimary
+                      : s.footerButtonSecondary
+                  }`}
+                >
+                  <span className={s.footerIconWrapper}>
+                    <Icon size={16} />
+                  </span>
+
+                  <span className="flex-1">{item.label}</span>
+
+                  <ChevronRight size={16} />
+                </button>
+              );
+            }
+
+            return (
+              <Link
+                key={item.label}
+                to={item.href}
+                className={`${s.footerLink} ${
+                  item.kind === "primary"
+                    ? s.footerLinkPrimary
+                    : s.footerLinkSecondary
+                }`}
+              >
+                <span className={s.footerIconWrapper}>
+                  <Icon size={16} />
+                </span>
+
+                <span className="flex-1">{item.label}</span>
+
+                <ChevronRight size={16} />
+              </Link>
+            );
+          })}
+        </div>
       </aside>
     </>
   );
