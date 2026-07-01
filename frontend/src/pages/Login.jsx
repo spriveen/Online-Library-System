@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { loginStyles as s } from "../assets/dummyStyles";
-import { Eye, EyeOff, LockKeyhole, Mail, ShieldCheck, UserRound } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, ShieldCheck, UserRound } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../shared/AuthContext.jsx";
 
@@ -207,6 +207,25 @@ const Login = () => {
                     </button>
               </div>
             </label>
+
+            {error && <div className={s.errorMessage}>{error}</div>}
+
+            <div className={s.footerFlex}>
+            <span className={s.footerText}>
+            {form.role === "admin" ? "Admin accounts use existing credentials"
+            : "Student signup is available below"}
+            </span>
+            {form.role === "user" && (
+                <Link  to='/signup' className={s.signupLink}>
+               Create Account
+                </Link>
+            )}
+            </div>
+
+            <button type="submit" disabled={loading} className={s.submitButton}>
+                {loading ? "Loggin in..." : "Login now"}
+                {!loading &&  <ArrowRight size={15} />}
+            </button>
             </form>
           </div>
         </section>
