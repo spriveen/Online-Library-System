@@ -1,4 +1,4 @@
-import React from "react";
+import React, { createElement } from "react";
 import Sidebar from "../components/Sidebar";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../shared/AuthContext.jsx";
@@ -48,7 +48,7 @@ const features = [
 
 const Home = () => {
   const navigate = useNavigate();
-  const { currentUser, logout } = useAuth();
+  const { currentUser } = useAuth();
 
   return (
     <div className={s.layoutContainer}>
@@ -104,8 +104,33 @@ const Home = () => {
                 </div>
               </div>
 
-              
+              <div className="grid gap-4">
+                <div className={s.infoCard}>
+                  <p className={s.infoCardLabel}>Library workflow</p>
+
+                  <p className={s.infoCardTitle}>
+                    Separate student and admin dashboards built for daily library operations.
+                  </p>
+
+                  <p className={s.infoCardText}>
+                    Monitor issue activity, keep profile records updated, and track overdue follow-up without leaving the system.
+                  </p>
+                </div>
+              </div>
             </div>
+          </section>
+
+          <section className={s.featuresGrid}>
+            {features.map(({ icon, title, text }) => (
+              <article key={title} className={s.featureCard}>
+                <span className={s.featureIconWrapper}>
+                  {createElement(icon, { size: 22 })}
+                </span>
+
+                <h2 className={s.featureTitle}>{title}</h2>
+                <p className={s.featureText}>{text}</p>
+              </article>
+            ))}
           </section>
         </div>
       </main>
