@@ -1,5 +1,8 @@
 import React from "react";
 import Sidebar from "../components/Sidebar";
+import { useNavigate } from "react-router-dom";
+// import { useAuth } from "../context/AuthContext.jsx";
+import { useAuth } from "../shared/AuthContext.jsx";
 
 import {
   BookMarked,
@@ -43,6 +46,36 @@ const features = [
 ];
 
 const Home = () => {
+  const navigate = useNavigate();
+  const { currentUser, logout } = useAuth();
+
+  const footerItems = currentUser
+    ? [
+        {
+          label: "Logout",
+          icon: "login",
+          kind: "primary",
+          action: () => {
+            logout();
+            navigate("/");
+          },
+        },
+      ]
+    : [
+        {
+          label: "Login",
+          href: "/login",
+          icon: "login",
+          kind: "primary",
+        },
+        {
+          label: "Sign Up",
+          href: "/signup",
+          icon: "signup",
+          kind: "secondary",
+        },
+      ];
+
   return (
     <div>
       <Sidebar
@@ -50,6 +83,7 @@ const Home = () => {
         subtitle="Library management portal"
         badge="Beautiful theme"
         navItems={navItems}
+        footerItems={footerItems}
       />
     </div>
   );
