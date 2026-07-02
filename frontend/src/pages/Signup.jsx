@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { signupStyles as s } from "../assets/dummyStyles";
 import { useAuth } from "../shared/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
-import { CheckCircle2, Mail, Phone, UserRound } from "lucide-react";
+import { CheckCircle2, Eye, EyeOff, LockKeyhole, Mail, Phone, UserRound } from "lucide-react";
 
 const stepList = [
   { id: 1, title: "Account" },
@@ -253,7 +253,26 @@ const Signup = () => {
               className={s.input}/>
             </label>
 
-            
+            <label className="block">
+              <span className={s.fieldLabel}>
+                <LockKeyhole size={15}/>
+                Password
+              </span>
+              <div className={s.passwordWrapper}>
+                <input type={showPassword ? "text" : "password"}  name="password" value={form.password}
+              onChange={handleChange} placeholder="Create password"
+              className={s.passwordInput}
+              />
+
+              <button 
+               type="button"
+               onClick={()=> setShowPassword((current)=> !current)}
+               className={s.toggleButton}
+              >
+                {showPassword ? <EyeOff size={17}/>:<Eye size={17}/>}
+              </button>
+              </div>
+            </label>
             </>
           )}
          </form>
