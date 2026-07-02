@@ -19,7 +19,7 @@ const Signup = () => {
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
   const [toast, setToast] = useState(null);
-  const [showPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
@@ -217,15 +217,17 @@ const Signup = () => {
           details
          </p>
          <div className={s.stepGrid}>
-           {stepList.map((item)=>(
-            <div className={`${s.stepCard} ${
-              step >= item.id ? s.stepCardCompleted: s.stepCardPending
-            }`} 
-            >
-             <p className={s.stepLabel}>Step{item.id}</p>
-             <p className={s.stepTitle}>{item.title}</p>
-            </div>
-           ))}
+           {stepList.map((item) => (
+  <div
+    key={item.id}
+    className={`${s.stepCard} ${
+      step >= item.id ? s.stepCardCompleted : s.stepCardPending
+    }`}
+  >
+    <p className={s.stepLabel}>Step {item.id}</p>
+    <p className={s.stepTitle}>{item.title}</p>
+  </div>
+))}
          </div>
 
          <form className={s.form} onSubmit={handleSubmit}>
