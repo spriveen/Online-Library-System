@@ -32,8 +32,7 @@ const signupHighlights = [
 ];
 
 const Signup = () => {
-  const { registerStudent, verifyOtpCode, completeProfileData, logout } =
-    useAuth();
+  const { registerStudent, verifyOtpCode, updateProfile, logout } = useAuth();
 
   const navigate = useNavigate();
 
@@ -179,7 +178,7 @@ const Signup = () => {
 
     setLoading(true);
 
-    const result = await completeProfileData({
+    const result = await updateProfile({
       email: form.email,
       department: form.department,
       stream: form.stream,

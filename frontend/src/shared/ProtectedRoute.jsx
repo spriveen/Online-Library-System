@@ -21,7 +21,8 @@ const ProtectedRoute = ({ allowedRole }) => {
 
   // 2. No user logged in
   if (!currentUser) {
-    const hasToken = localStorage.getItem("library-auth-token");
+    
+    const hasToken = localStorage.getItem("library_auth_token");
 
     console.log(
       "Protected Route: No currentUser. HasToken:",

@@ -14,7 +14,8 @@ authRouter.post("/register-admin", registerAdmin);
 
 // protected routes
 authRouter.get("/me", authenticateToken, getProfile);
-authRouter.get("/update-profile", authenticateToken, updateProfile);
+authRouter.put("/update-profile", authenticateToken, updateProfile);
+// authRouter.get("/update-profile", authenticateToken, updateProfile);
 
 authRouter.get("/users", authenticateToken, authorizeRoles("admin"), getUsers);
 

@@ -11,89 +11,95 @@ const SESSION_KEY = "library_auth_session";
 const TOKEN_KEY = "library_auth_token";
 const API_BASE_URL = "http://localhost:5000/api/auth";
 
-const defaultAccounts = [];
-
 const mapUserToFrontend = (user) => {
   if (!user) return null;
+
   return {
     id: user._id,
     name: user.name,
     email: user.email,
     phone: user.phone || "",
     role: user.role,
-    department: user.department || "General",
-    stream: user.stream || "General",
-    academicYear: user.year || "1st Year",
-    semester: user.semester || "Semester 1",
+    department: user.department || "",
+    stream: user.stream || "",
+    academicYear: user.year || "",
+    semester: user.semester || "",
     rollNumber: user.rollNo || "",
-    studentId: user.studentId || `ST-${user._id.slice(-6)}`,
+    studentId: user.studentId || `ST-${user._id?.slice(-6)}`,
     createdAt: user.createdAt,
   };
 };
 
 export const AuthProvider = ({ children }) => {
-  const [accounts, setAccounts] = useState(defaultAccounts);
+  const [accounts, setAccounts] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [ready, setReady] = useState(false);
 
-  // fetch users (admin)
+  // =========================
+  // ADMIN USERS
+  // =========================
   const fetchRegisteredUsers = async (token) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/users`, {
+      const res = await fetch(`${API_BASE_URL}/users`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (response.ok && data.success && Array.isArray(data.users)) {
-        const fetchedAccounts = data.users
-          .map(mapUserToFrontend)
-          .sort(
+      if (res.ok && data?.users) {
+        const mapped = data.users.map(mapUserToFrontend);
+
+        setAccounts(
+          mapped.sort(
             (a, b) =>
-              new Date(b.createdAt ?? 0) - new Date(a.createdAt ?? 0)
-          );
-
-        setAccounts(fetchedAccounts);
+              new Date(b.createdAt || 0) -
+              new Date(a.createdAt || 0)
+          )
+        );
       }
-    } catch (error) {
-      console.error("Error fetching users:", error);
+    } catch (err) {
+      console.error("fetch users error:", err);
     }
   };
 
-  // init auth
+  // =========================
+  // INIT AUTH
+  // =========================
   useEffect(() => {
-    const initializeAuth = async () => {
+    const init = async () => {
       const token = localStorage.getItem(TOKEN_KEY);
       const session = localStorage.getItem(SESSION_KEY);
 
-      if (token && session) {
+      if (token) {
         try {
-          const response = await fetch(`${API_BASE_URL}/me`, {
+          const res = await fetch(`${API_BASE_URL}/me`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
 
-          const data = await response.json();
+          const data = await res.json();
 
-          if (response.ok && data.success && data.user) {
-            const mappedUser = mapUserToFrontend(data.user);
-            setCurrentUser(mappedUser);
+          if (res.ok && data?.user) {
+            const user = mapUserToFrontend(data.user);
+
+            setCurrentUser(user);
             localStorage.setItem(
               SESSION_KEY,
-              JSON.stringify(mappedUser)
+              JSON.stringify(user)
             );
 
-            if (mappedUser.role === "admin") {
+            if (user.role === "admin") {
               await fetchRegisteredUsers(token);
             }
           } else {
             logout();
           }
-        } catch (error) {
-          console.error("Auth init error:", error);
+        } catch (err) {
+          console.error("init auth error:", err);
+
           try {
             setCurrentUser(JSON.parse(session));
           } catch {
@@ -105,72 +111,59 @@ export const AuthProvider = ({ children }) => {
       setReady(true);
     };
 
-    initializeAuth();
+    init();
   }, []);
 
-  // login
+  // =========================
+  // LOGIN
+  // =========================
   const login = async ({ email, password, role }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/login`, {
+      const res = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (!response.ok) {
+      if (!res.ok) {
+        return { ok: false, error: data?.message || "Login failed" };
+      }
+
+      const user = mapUserToFrontend(data.user);
+
+      if (role && user.role !== role) {
         return {
           ok: false,
-          error: data.message || "Invalid credentials",
+          error:
+            role === "admin"
+              ? "Not admin account"
+              : "Not student account",
         };
       }
 
-      if (data.success && data.token && data.user) {
-        const mappedUser = mapUserToFrontend(data.user);
+      localStorage.setItem(TOKEN_KEY, data.token);
+      localStorage.setItem(
+        SESSION_KEY,
+        JSON.stringify(user)
+      );
 
-        if (role && mappedUser.role !== role) {
-          return {
-            ok: false,
-            error:
-              role === "admin"
-                ? "Not an admin account"
-                : "Not a student account",
-          };
-        }
+      setCurrentUser(user);
 
-        localStorage.setItem(TOKEN_KEY, data.token);
-        localStorage.setItem(
-          SESSION_KEY,
-          JSON.stringify(mappedUser)
-        );
-        setCurrentUser(mappedUser);
-
-        if (mappedUser.role === "admin") {
-          await fetchRegisteredUsers(data.token);
-        }
-
-        return { ok: true, user: mappedUser };
+      if (user.role === "admin") {
+        await fetchRegisteredUsers(data.token);
       }
 
-      return { ok: false, error: "Login failed" };
-    } catch (error) {
-      console.error(error);
-      return {
-        ok: false,
-        error: "Server not reachable",
-      };
+      return { ok: true, user };
+    } catch (err) {
+      return { ok: false, error: "Server not reachable" };
     }
   };
 
-  // logout
-  const logout = () => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(SESSION_KEY);
-    setCurrentUser(null);
-  };
-
-  // register
+  // =========================
+  // REGISTER
+  // =========================
   const registerStudent = async ({
     name,
     email,
@@ -178,71 +171,84 @@ export const AuthProvider = ({ children }) => {
     password,
   }) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/register`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            email,
-            phone,
-            password,
-          }),
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          password,
+        }),
+      });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (!response.ok) {
+      if (!res.ok) {
         return {
           ok: false,
-          error: data.message || "Registration failed",
+          error: data?.message || "Registration failed",
         };
       }
 
       return { ok: true, message: data.message };
-    } catch (error) {
-      return {
-        ok: false,
-        error: "Server error",
-      };
+    } catch {
+      return { ok: false, error: "Server error" };
     }
   };
 
-  // OTP
+  // =========================
+  // OTP VERIFY
+  // =========================
   const verifyOtpCode = async ({ email, otp }) => {
     try {
-      const response = await fetch(
+      const res = await fetch(
         `${API_BASE_URL}/verify-otp`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({ email, otp }),
         }
       );
 
-      const data = await response.json();
+      const data = await res.json();
 
-      return response.ok
-        ? { ok: true, message: data.message }
-        : { ok: false, error: data.message };
-    } catch (error) {
-      return {
-        ok: false,
-        error: "OTP server error",
-      };
+      if (!res.ok) {
+        return { ok: false, error: data?.message };
+      }
+
+      if (data?.token) {
+        localStorage.setItem(TOKEN_KEY, data.token);
+      }
+
+      const user = mapUserToFrontend(data.user);
+
+      setCurrentUser(user);
+      localStorage.setItem(
+        SESSION_KEY,
+        JSON.stringify(user)
+      );
+
+      return { ok: true, message: data.message };
+    } catch {
+      return { ok: false, error: "OTP server error" };
     }
   };
 
-  // profile update
+  // =========================
+  // UPDATE PROFILE
+  // =========================
   const updateProfile = async (updates) => {
     const token = localStorage.getItem(TOKEN_KEY);
-    if (!token)
+
+    if (!token) {
       return { ok: false, error: "No token found" };
+    }
 
     try {
-      const response = await fetch(
+      const res = await fetch(
         `${API_BASE_URL}/update-profile`,
         {
           method: "PUT",
@@ -254,35 +260,42 @@ export const AuthProvider = ({ children }) => {
         }
       );
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (response.ok && data.user) {
-        const mappedUser = mapUserToFrontend(data.user);
-        setCurrentUser(mappedUser);
-        localStorage.setItem(
-          SESSION_KEY,
-          JSON.stringify(mappedUser)
-        );
-        return { ok: true, user: mappedUser };
+      if (!res.ok) {
+        return {
+          ok: false,
+          error: data?.message || "Update failed",
+        };
       }
 
-      return {
-        ok: false,
-        error: data.message,
-      };
-    } catch (error) {
-      return {
-        ok: false,
-        error: "Server error",
-      };
+      const user = mapUserToFrontend(data.user);
+
+      setCurrentUser(user);
+      localStorage.setItem(
+        SESSION_KEY,
+        JSON.stringify(user)
+      );
+
+      return { ok: true, user };
+    } catch {
+      return { ok: false, error: "Server error" };
     }
+  };
+
+  // =========================
+  // LOGOUT
+  // =========================
+  const logout = () => {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(SESSION_KEY);
+    setCurrentUser(null);
   };
 
   const accountExists = (email) =>
     accounts.some(
       (u) =>
-        u.email.toLowerCase() ===
-        email.toLowerCase()
+        u.email.toLowerCase() === email.toLowerCase()
     );
 
   return (
@@ -308,9 +321,7 @@ export const useAuth = () => {
   const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error(
-      "useAuth must be used inside AuthProvider"
-    );
+    throw new Error("useAuth must be used inside AuthProvider");
   }
 
   return context;
