@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { signupStyles as s } from "../assets/dummyStyles";
 import { useAuth } from "../shared/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Mail, Phone, UserRound } from "lucide-react";
 
 const stepList = [
   { id: 1, title: "Account" },
@@ -227,6 +227,36 @@ const Signup = () => {
             </div>
            ))}
          </div>
+
+         <form className={s.form} onSubmit={handleSubmit}>
+          {step === 1 && (
+            <>
+            
+            
+            <label className="block">
+              <span className={s.fieldLabel}>
+                <Mail size={15}/>
+                Email Address
+              </span>
+              <input type="email"  name="email" value={form.email}
+              onChange={handleChange} placeholder="student@campus.edu"
+              className={s.input}/>
+            </label>
+
+            <label className="block">
+              <span className={s.fieldLabel}>
+                <Phone size={15}/>
+                Mobile Number
+              </span>
+              <input type="text"  name="phone" value={form.phone}
+              onChange={handleChange} placeholder="+94728764876"
+              className={s.input}/>
+            </label>
+
+            
+            </>
+          )}
+         </form>
         </div>
        </section>
       </div>
