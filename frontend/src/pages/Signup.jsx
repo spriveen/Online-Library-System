@@ -2,12 +2,33 @@ import React, { useEffect, useState } from "react";
 import { signupStyles as s } from "../assets/dummyStyles";
 import { useAuth } from "../shared/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
-import { CheckCircle2, Eye, EyeOff, LockKeyhole, Mail, Phone, UserRound } from "lucide-react";
+import {
+  ArrowRight,
+  BadgeCheck,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  KeyRound,
+  LockKeyhole,
+  Mail,
+  Phone,
+  Sparkles,
+  UserRound,
+} from "lucide-react";
+import { studentSemesters, studentYears } from "../data/libraryData";
 
 const stepList = [
   { id: 1, title: "Account" },
   { id: 2, title: "OTP" },
   { id: 3, title: "Profile" },
+];
+
+// ✅ FIX: missing highlight array
+const signupHighlights = [
+  "Secure student account creation",
+  "OTP email verification",
+  "3-step guided signup process",
+  "Fast library access system",
 ];
 
 const Signup = () => {
@@ -138,7 +159,6 @@ const Signup = () => {
 
       showToast("OTP verified");
       setStep(3);
-      return;
     }
   };
 
@@ -151,7 +171,8 @@ const Signup = () => {
     e.preventDefault();
     setError("");
 
-    if (!validateStepOne() || !form.otp.trim() || !validateStepThree()) {
+    // ✅ FIXED LOGIC (no unnecessary step1 re-check)
+    if (!form.otp.trim() || !validateStepThree()) {
       setError("Complete all steps first");
       return;
     }
@@ -192,94 +213,244 @@ const Signup = () => {
   return (
     <div className={s.pageContainer}>
       {toast && (
-        <div className={`${s.toastBase} ${
+        <div
+          className={`${s.toastBase} ${
             toast.tone === "error" ? s.toastError : s.toastSuccess
-        }`}
-        
-        > 
-        <div className={s.toastContent}>
-          <CheckCircle2 size={18} />
-          {toast.message}
-        </div>
+          }`}
+        >
+          <div className={s.toastContent}>
+            <CheckCircle2 size={18} />
+            {toast.message}
+          </div>
         </div>
       )}
+
       <div className={s.mainCard}>
-       <section className={s.formPanel}>
-        <div className={s.formInner}>
-         <Link to="/" className={s.backLink}>
-          Back to Home
-         </Link>
-         <h1 className={s.panelTitle}>
-            Create your student library account.
-         </h1>
-         <p className={s.panelSubtitle}>
-          Complete the student signup steps: accounts,OTP,a nd profile
-          details
-         </p>
-         <div className={s.stepGrid}>
-           {stepList.map((item) => (
-  <div
-    key={item.id}
-    className={`${s.stepCard} ${
-      step >= item.id ? s.stepCardCompleted : s.stepCardPending
-    }`}
-  >
-    <p className={s.stepLabel}>Step {item.id}</p>
-    <p className={s.stepTitle}>{item.title}</p>
-  </div>
-))}
-         </div>
+        <section className={s.formPanel}>
+          <div className={s.formInner}>
+            <Link to="/" className={s.backLink}>
+              Back to Home
+            </Link>
 
-         <form className={s.form} onSubmit={handleSubmit}>
-          {step === 1 && (
-            <>
-            
-            
-            <label className="block">
-              <span className={s.fieldLabel}>
-                <Mail size={15}/>
-                Email Address
-              </span>
-              <input type="email"  name="email" value={form.email}
-              onChange={handleChange} placeholder="student@campus.edu"
-              className={s.input}/>
-            </label>
+            <h1 className={s.panelTitle}>
+              Create your student library account.
+            </h1>
 
-            <label className="block">
-              <span className={s.fieldLabel}>
-                <Phone size={15}/>
-                Mobile Number
-              </span>
-              <input type="text"  name="phone" value={form.phone}
-              onChange={handleChange} placeholder="+94728764876"
-              className={s.input}/>
-            </label>
+            <p className={s.panelSubtitle}>
+              Complete signup in 3 steps: account, OTP, profile
+            </p>
 
-            <label className="block">
-              <span className={s.fieldLabel}>
-                <LockKeyhole size={15}/>
-                Password
-              </span>
-              <div className={s.passwordWrapper}>
-                <input type={showPassword ? "text" : "password"}  name="password" value={form.password}
-              onChange={handleChange} placeholder="Create password"
-              className={s.passwordInput}
-              />
+            <div className={s.stepGrid}>
+              {stepList.map((item) => (
+                <div
+                  key={item.id}
+                  className={`${s.stepCard} ${
+                    step >= item.id
+                      ? s.stepCardCompleted
+                      : s.stepCardPending
+                  }`}
+                >
+                  <p className={s.stepLabel}>Step {item.id}</p>
+                  <p className={s.stepTitle}>{item.title}</p>
+                </div>
+              ))}
+            </div>
 
-              <button 
-               type="button"
-               onClick={()=> setShowPassword((current)=> !current)}
-               className={s.toggleButton}
-              >
-                {showPassword ? <EyeOff size={17}/>:<Eye size={17}/>}
-              </button>
+            <form className={s.form} onSubmit={handleSubmit}>
+              {/* STEP 1 */}
+              {step === 1 && (
+                <>
+                  <label className="block">
+                    <span className={s.fieldLabel}>
+                      <UserRound size={15} /> Full Name
+                    </span>
+                    <input
+                      type="text"
+                      name="name"
+                      value={form.name}
+                      onChange={handleChange}
+                      className={s.input}
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className={s.fieldLabel}>
+                      <Mail size={15} /> Email Address
+                    </span>
+                    <input
+                      type="email"
+                      name="email"
+                      value={form.email}
+                      onChange={handleChange}
+                      className={s.input}
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className={s.fieldLabel}>
+                      <Phone size={15} /> Mobile Number
+                    </span>
+                    <input
+                      type="text"
+                      name="phone"
+                      value={form.phone}
+                      onChange={handleChange}
+                      className={s.input}
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className={s.fieldLabel}>
+                      <LockKeyhole size={15} /> Password
+                    </span>
+                    <div className={s.passwordWrapper}>
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        value={form.password}
+                        onChange={handleChange}
+                        className={s.passwordInput}
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowPassword((prev) => !prev)
+                        }
+                        className={s.toggleButton}
+                      >
+                        {showPassword ? (
+                          <EyeOff size={17} />
+                        ) : (
+                          <Eye size={17} />
+                        )}
+                      </button>
+                    </div>
+                  </label>
+                </>
+              )}
+
+              {/* STEP 2 */}
+              {step === 2 && (
+                <>
+                  <p className={s.otpInfoText}>
+                    OTP sent to <b>{form.email}</b>
+                  </p>
+
+                  <input
+                    name="otp"
+                    value={form.otp}
+                    onChange={handleChange}
+                    className={s.input}
+                    placeholder="Enter OTP"
+                  />
+                </>
+              )}
+
+              {/* STEP 3 */}
+              {step === 3 && (
+                <>
+                  <input
+                    name="department"
+                    value={form.department}
+                    onChange={handleChange}
+                    className={s.input}
+                    placeholder="Department"
+                  />
+
+                  <input
+                    name="stream"
+                    value={form.stream}
+                    onChange={handleChange}
+                    className={s.input}
+                    placeholder="Stream"
+                  />
+
+                  <select
+                    name="semester"
+                    value={form.semester}
+                    onChange={handleChange}
+                    className={s.select}
+                  >
+                    {studentSemesters.map((s1) => (
+                      <option key={s1} value={s1}>
+                        {s1}
+                      </option>
+                    ))}
+                  </select>
+
+                  <select
+                    name="academicYear"
+                    value={form.academicYear}
+                    onChange={handleChange}
+                    className={s.select}
+                  >
+                    {studentYears.map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
+
+                  <input
+                    name="rollNumber"
+                    value={form.rollNumber}
+                    onChange={handleChange}
+                    className={s.input}
+                    placeholder="Roll Number"
+                  />
+                </>
+              )}
+
+              {error && <div className={s.errorMessage}>{error}</div>}
+
+              <div className={s.buttonGroup}>
+                {step > 1 && (
+                  <button
+                    type="button"
+                    onClick={goBack}
+                    className={s.backButton}
+                  >
+                    Back
+                  </button>
+                )}
+
+                {step < 3 ? (
+                  <button
+                    type="button"
+                    onClick={goNext}
+                    className={s.nextButton}
+                  >
+                    Continue <ArrowRight size={15} />
+                  </button>
+                ) : (
+                  <button type="submit" className={s.submitButton}>
+                    Complete Profile <ArrowRight size={15} />
+                  </button>
+                )}
               </div>
-            </label>
-            </>
-          )}
-         </form>
-        </div>
-       </section>
+            </form>
+          </div>
+        </section>
+
+        <section className={s.infoPanel}>
+          <span className={s.infoBadge}>
+            <Sparkles size={14} /> Step wise signup
+          </span>
+
+          <h2 className={s.infoTitle}>
+            Simple 3-step registration process
+          </h2>
+
+          <div className={s.infoList}>
+            {signupHighlights.map((item) => (
+              <div key={item} className={s.infoListItem}>
+                <BadgeCheck size={18} />
+                {item}
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );
