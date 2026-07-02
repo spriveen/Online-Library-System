@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { signupStyles as s } from "../assets/dummyStyles";
 import { useAuth } from "../shared/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
 
 const stepList = [
@@ -206,7 +206,27 @@ const Signup = () => {
       <div className={s.mainCard}>
        <section className={s.formPanel}>
         <div className={s.formInner}>
-
+         <Link to="/" className={s.backLink}>
+          Back to Home
+         </Link>
+         <h1 className={s.panelTitle}>
+            Create your student library account.
+         </h1>
+         <p className={s.panelSubtitle}>
+          Complete the student signup steps: accounts,OTP,a nd profile
+          details
+         </p>
+         <div className={s.stepGrid}>
+           {stepList.map((item)=>(
+            <div className={`${s.stepCard} ${
+              step >= item.id ? s.stepCardCompleted: s.stepCardPending
+            }`} 
+            >
+             <p className={s.stepLabel}>Step{item.id}</p>
+             <p className={s.stepTitle}>{item.title}</p>
+            </div>
+           ))}
+         </div>
         </div>
        </section>
       </div>
