@@ -416,10 +416,11 @@ const Signup = () => {
 
                 {step < 3 ? (
                   <button
-                    type="button"
-                    onClick={goNext}
-                    className={s.nextButton}
-                  >
+           type="button"
+           onClick={goNext}
+           disabled={loading}
+          className={s.nextButton}
+          >
                     Continue <ArrowRight size={15} />
                   </button>
                 ) : (
